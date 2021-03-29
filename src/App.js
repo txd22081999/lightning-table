@@ -3,8 +3,12 @@ import { useSelector, useDispatch } from "react-redux"
 import logo from "./logo.svg"
 import increment, { incrementAsync, decrement } from "./actions"
 import Counter from "./Counter"
-import "./App.scss"
+
+import "antd/dist/antd.css" // or 'antd/dist/antd.less'
+
 import Home from "./pages/Home/Home"
+
+import "./App.scss"
 
 function App() {
   // const dispatch = useDispatch();

@@ -1,7 +1,11 @@
 import React, { useState, useEffect, useMemo, useRef } from "react"
+import * as momentjs from "moment"
 import { getData } from "../../utils"
+import Player from "../Player"
 import Table from "../common/Table"
-import Input from "../common/Input"
+// import Input from "../common/Input"
+
+import { Input } from "antd"
 
 import { MOCK_DATA } from "../../utils"
 
@@ -38,6 +42,8 @@ const tableStyle = {
   margin: "0 auto",
   // backgroundColor: "#e6e6e6",
 }
+
+const inputStyle = { width: 200, textAlign: "center" }
 
 const LightningTable = () => {
   const [tableData, setTableData] = useState({ data: [], color: [] })
@@ -232,12 +238,12 @@ const LightningTable = () => {
   )
 
   const onMomentChange = (e) => {
-    if (!momentRef) return
-    const {
-      current: { value = "" },
-    } = momentRef
-    if (!value) return
-    console.log(momentRef.current.value)
+    // if (!momentRef) return
+    // const {
+    //   current: { value = "" },
+    // } = momentRef
+    // if (!value) return
+    // console.log(momentRef.current.value)
   }
 
   console.log("render")
@@ -271,10 +277,14 @@ const LightningTable = () => {
     [tableData.data]
   )
 
-  console.log(momentRef)
+  const onMomentFinish = (e) => {
+    console.log(e.target.value)
+  }
+
+  console.log(momentjs("9:30").format("h:mm"))
 
   return (
-    <>
+    <div className='lightning-table'>
       <h1>Home</h1>
 
       {/* <MemoizedTable /> */}
@@ -283,7 +293,7 @@ const LightningTable = () => {
         columns={columns}
         data={tableData.data}
         getCellProps={(cellInfo) => {
-          console.log(cellInfo)
+          // console.log(cellInfo)
           const {
             column: { id: colId, order },
             row: { id: rowIndex, value },
@@ -303,12 +313,22 @@ const LightningTable = () => {
         styles={tableStyle}
       />
 
-      <Input
+      {/* <Input
         ref={momentRef}
         //  value={moment}
         onChange={onMomentChange}
+      /> */}
+
+      <div style={{ marginTop: "2em" }} />
+
+      <Input
+        style={inputStyle}
+        onChange={onMomentChange}
+        onPressEnter={onMomentFinish}
       />
-    </>
+
+      <Player />
+    </div>
   )
 }
 
