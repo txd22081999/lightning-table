@@ -31,7 +31,8 @@ const formatColor = (rows, columns) => {
   return formattedColor
 }
 
-const DELAY_TIME = 1000
+const DELAY_TIME = 1000 // millisecond
+const STEP_TIME = 1 // second
 
 const tableStyle = {
   maxWidth: '80%',
@@ -47,7 +48,7 @@ const inputStyle = { width: 200, textAlign: 'center' }
 
 let updateInterval = undefined
 const initialStartTime = {
-  time: '09:30:58',
+  time: '09:30:00',
   index: 29,
 }
 
@@ -90,6 +91,7 @@ const LightningTable = () => {
   useEffect(() => {
     console.log('STARTTT')
     updateTableData({ useTick: false })
+    // setTick(startTime.index)
   }, [startTime])
 
   const columns = useMemo(() => {
@@ -120,6 +122,7 @@ const LightningTable = () => {
 
   const updateTableData = ({ useTick = true }) => {
     const updateIndex = useTick ? tick : startTime.index
+    if (!useTick) console.log('USE INDEX')
     console.log(updateIndex)
     const rowResult = MOCK_DATA.snapshots[updateIndex].map((item, index) => {
       return formatRow(MOCK_DATA.snapshots[updateIndex][index], columns)
@@ -318,32 +321,34 @@ const LightningTable = () => {
     clearUpdateInterval()
   }
 
-  const forward = () => {
+  const step = (seconds) => {
     const { time, index } = startTime
+    const isBackward = seconds < 0
+    const MIN_INDEX = 0
+    const MAX_INDEX = 99
+    if (isBackward && index === MIN_INDEX) {
+      return
+    }
 
-    console.log('FORWARD')
-    // console.log(momentjs(time, DATE_FORMAT))
-    console.log(addSeconds({ time, seconds: 1 }))
+    if (!isBackward && index === MAX_INDEX) {
+      return
+    }
+    const updatedIndex = isBackward ? index - 1 : index + 1
+
     setStartTime((prevTime) => {
       return {
-        time: addSeconds({ time: prevTime.time, seconds: 1 }),
-        index: prevTime.index + 1,
+        time: addSeconds({ time: prevTime.time, seconds }),
+        index: updatedIndex,
       }
     })
   }
 
-  const backward = () => {
-    const { time, index } = startTime
+  const forward = () => {
+    step(STEP_TIME)
+  }
 
-    console.log('FORWARD')
-    // console.log(momentjs(time, DATE_FORMAT))
-    console.log(addSeconds({ time, seconds: 1 }))
-    setStartTime((prevTime) => {
-      return {
-        time: addSeconds({ time: prevTime.time, seconds: -1 }),
-        index: prevTime.index - 1,
-      }
-    })
+  const backward = () => {
+    step(-STEP_TIME)
   }
 
   return (
