@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react'
 import * as momentjs from 'moment'
-import { getData, getTime, timeDiffInSecond } from '../../utils'
+import { getData, getTime, timeDiffInSecond, addSeconds } from '../../utils'
 import Player from '../Player'
 import Table from '../common/Table'
 // import Input from "../common/Input"
@@ -46,9 +46,14 @@ const tableStyle = {
 const inputStyle = { width: 200, textAlign: 'center' }
 
 let updateInterval = undefined
+
 const LightningTable = () => {
+  const [startTime, setStartTime] = useState({
+    time: '09:30:00',
+    index: 29,
+  })
   const [tableData, setTableData] = useState({ data: [], color: [] })
-  const [tick, setTick] = useState(0)
+  const [tick, setTick] = useState(startTime.index)
   const [moment, setMoment] = useState('')
   const momentRef = useRef(null)
 
@@ -297,12 +302,6 @@ const LightningTable = () => {
   const pause = () => {
     clearUpdateInterval()
   }
-
-  let t1 = '9:29:11'
-  let t2 = '9:30:15'
-  let time1 = getTime(t1)
-  let time2 = getTime(t2)
-  // console.log(timeDiffInSecond({ time1, time2 }))
 
   return (
     <div className='lightning-table'>

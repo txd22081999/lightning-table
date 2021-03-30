@@ -11,7 +11,7 @@ import {
 import './Player.scss'
 
 const Player = (props) => {
-  const [playing, setPlaying] = useState(true)
+  const [playing, setPlaying] = useState(false)
   const { play, pause } = props
 
   useEffect(() => {
