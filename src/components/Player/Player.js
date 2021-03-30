@@ -1,23 +1,34 @@
-import React, { useState } from "react"
+import React, { useState, useEffect } from 'react'
 
-import { Button } from "antd"
+import { Button } from 'antd'
 import {
   PlayCircleFilled,
   PauseCircleFilled,
   StepBackwardFilled,
   StepForwardFilled,
-} from "@ant-design/icons"
+} from '@ant-design/icons'
 
-import "./Player.scss"
+import './Player.scss'
 
-const Player = () => {
-  const [play, setPlay] = useState(false)
+const Player = (props) => {
+  const [playing, setPlaying] = useState(true)
+  const { play, pause } = props
+
+  useEffect(() => {
+    if (playing) {
+      play()
+    } else {
+      pause()
+    }
+    return () => {}
+  }, [playing])
 
   const onPlayClick = () => {
-    setPlay((prevPlay) => !prevPlay)
+    setPlaying((prevPlay) => !prevPlay)
   }
 
-  const PlayIcon = () => (play ? <PauseCircleFilled /> : <PlayCircleFilled />)
+  const PlayIcon = () =>
+    playing ? <PauseCircleFilled /> : <PlayCircleFilled />
 
   return (
     <div className='player-controls'>

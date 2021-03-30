@@ -1,15 +1,15 @@
-import React, { useState, useEffect, useMemo, useRef } from "react"
-import * as momentjs from "moment"
-import { getData } from "../../utils"
-import Player from "../Player"
-import Table from "../common/Table"
+import React, { useState, useEffect, useMemo, useRef } from 'react'
+import * as momentjs from 'moment'
+import { getData, getTime, timeDiffInSecond } from '../../utils'
+import Player from '../Player'
+import Table from '../common/Table'
 // import Input from "../common/Input"
 
-import { Input } from "antd"
+import { Input } from 'antd'
 
-import { MOCK_DATA } from "../../utils"
+import { MOCK_DATA } from '../../utils'
 
-import "./LightningTable.scss"
+import './LightningTable.scss'
 
 const formatRow = (rows, columns) => {
   const formattedRow = {}
@@ -34,37 +34,42 @@ const formatColor = (rows, columns) => {
 const DELAY_TIME = 500
 
 const tableStyle = {
-  maxWidth: "80%",
-  overflowX: "scroll",
+  maxWidth: '80%',
+  overflowX: 'scroll',
   // padding: "20px 50px",
   // border: "1px solid black",
-  boxShadow: "0px 0px 4px rgba(0,0,0,0.4)",
-  margin: "0 auto",
+  boxShadow: '0px 0px 4px rgba(0,0,0,0.4)',
+  margin: '0 auto',
   // backgroundColor: "#e6e6e6",
 }
 
-const inputStyle = { width: 200, textAlign: "center" }
+const inputStyle = { width: 200, textAlign: 'center' }
 
+let updateInterval = undefined
 const LightningTable = () => {
   const [tableData, setTableData] = useState({ data: [], color: [] })
   const [tick, setTick] = useState(0)
-  const [moment, setMoment] = useState("")
+  const [moment, setMoment] = useState('')
   const momentRef = useRef(null)
 
-  // Update table every 1 second
-  // useEffect(() => {
-  //   const update = () => {
-  //     if (tick >= 100) {
-  //       setTick(0)
-  //     }
-  //     setTick((prev) => prev + 1)
-  //   }
-  //   const updateInterval = setInterval(update, DELAY_TIME)
+  const update = () => {
+    if (tick >= 100) {
+      setTick(0)
+      return
+    }
+    setTick((prev) => prev + 1)
+  }
 
-  //   return () => {
-  //     clearInterval(updateInterval)
-  //   }
-  // }, [])
+  // Update table every 1 second
+  useEffect(() => {
+    return () => {
+      clearUpdateInterval()
+    }
+  }, [])
+
+  const updateEverySecond = () => {
+    updateInterval = setInterval(update, DELAY_TIME)
+  }
 
   useEffect(() => {
     updateTableData()
@@ -122,113 +127,113 @@ const LightningTable = () => {
   const columns2 = useMemo(
     () => [
       {
-        Header: "_________NET__________",
+        Header: '_________NET__________',
         columns: [
           {
-            Header: "NET",
-            accessor: "NET",
+            Header: 'NET',
+            accessor: 'NET',
             width: 110,
           },
           {
-            Header: "Mã",
-            accessor: "MA",
+            Header: 'Mã',
+            accessor: 'MA',
             width: 50,
           },
         ],
       },
       {
         Header:
-          "_______________________________________________MUA__________________________________________",
+          '_______________________________________________MUA__________________________________________',
         columns: [
           {
-            Header: "TOTAL_B",
-            accessor: "TOTAL_B",
+            Header: 'TOTAL_B',
+            accessor: 'TOTAL_B',
             width: 120,
           },
           {
-            Header: "GT_3",
-            accessor: "GT_MUA_3",
+            Header: 'GT_3',
+            accessor: 'GT_MUA_3',
             width: 90,
           },
           {
-            Header: "KL_3",
-            accessor: "KL_MUA_3",
+            Header: 'KL_3',
+            accessor: 'KL_MUA_3',
             width: 80,
           },
           {
-            Header: "GT_2",
-            accessor: "GT_MUA_2",
+            Header: 'GT_2',
+            accessor: 'GT_MUA_2',
             width: 90,
           },
           {
-            Header: "KL_2",
-            accessor: "KL_MUA_2",
+            Header: 'KL_2',
+            accessor: 'KL_MUA_2',
             width: 80,
           },
           {
-            Header: "GT_1",
-            accessor: "GT_MUA_1",
+            Header: 'GT_1',
+            accessor: 'GT_MUA_1',
             width: 90,
           },
           {
-            Header: "KL_1",
-            accessor: "KL_MUA_1",
+            Header: 'KL_1',
+            accessor: 'KL_MUA_1',
             width: 80,
           },
         ],
       },
       {
-        Header: "_________TOTAL__________",
+        Header: '_________TOTAL__________',
         columns: [
           {
-            Header: "Tổng_vol_B",
-            accessor: "VOL_B",
+            Header: 'Tổng_vol_B',
+            accessor: 'VOL_B',
             width: 90,
           },
           {
-            Header: "Tổng_vol_S",
-            accessor: "VOL_S",
+            Header: 'Tổng_vol_S',
+            accessor: 'VOL_S',
             width: 90,
           },
         ],
       },
       {
         Header:
-          "_______________________________________________BÁN__________________________________________",
+          '_______________________________________________BÁN__________________________________________',
         columns: [
           {
-            Header: "GT_1",
-            accessor: "GT_BAN_1",
+            Header: 'GT_1',
+            accessor: 'GT_BAN_1',
             width: 90,
           },
           {
-            Header: "KL_1",
-            accessor: "KL_BAN_1",
+            Header: 'KL_1',
+            accessor: 'KL_BAN_1',
             width: 80,
           },
           {
-            Header: "GT_2",
-            accessor: "GT_BAN_2",
+            Header: 'GT_2',
+            accessor: 'GT_BAN_2',
             width: 90,
           },
           {
-            Header: "KL_2",
-            accessor: "KL_BAN_2",
+            Header: 'KL_2',
+            accessor: 'KL_BAN_2',
             width: 80,
           },
           {
-            Header: "GT_3",
-            accessor: "GT_BAN_3",
+            Header: 'GT_3',
+            accessor: 'GT_BAN_3',
             width: 90,
           },
           {
-            Header: "KL_3",
-            accessor: "KL_BAN_3",
+            Header: 'KL_3',
+            accessor: 'KL_BAN_3',
             width: 80,
           },
           {
-            Header: "TOTAL_S",
-            accessor: "TOTAL_S",
+            Header: 'TOTAL_S',
+            accessor: 'TOTAL_S',
             width: 120,
           },
         ],
@@ -246,8 +251,6 @@ const LightningTable = () => {
     // console.log(momentRef.current.value)
   }
 
-  console.log("render")
-
   const MemoizedTable = useMemo(
     () => (
       <Table
@@ -262,12 +265,12 @@ const LightningTable = () => {
           const { color = [] } = tableData
           const colNames = Object.keys(color[rowIndex])
           const colorStyle = color[rowIndex][colId]
-          const isHighlighted = colorStyle === "#000000"
+          const isHighlighted = colorStyle === '#000000'
 
           return {
             style: {
               backgroundColor:
-                colorStyle === "#000000" ? "#ffffff" : colorStyle,
+                colorStyle === '#000000' ? '#ffffff' : colorStyle,
             },
           }
         }}
@@ -281,13 +284,41 @@ const LightningTable = () => {
     console.log(e.target.value)
   }
 
-  console.log(momentjs("9:30").format("h:mm"))
+  const clearUpdateInterval = () => {
+    if (updateInterval) {
+      clearInterval(updateInterval)
+    }
+  }
+
+  const play = () => {
+    updateEverySecond()
+  }
+
+  const pause = () => {
+    clearUpdateInterval()
+  }
+
+  let t1 = '9:29:11'
+  let t2 = '9:30:15'
+  let time1 = getTime(t1)
+  let time2 = getTime(t2)
+  // console.log(timeDiffInSecond({ time1, time2 }))
 
   return (
     <div className='lightning-table'>
       <h1>Home</h1>
 
       {/* <MemoizedTable /> */}
+
+      <div style={{ marginTop: '2em' }} />
+
+      <Input
+        style={inputStyle}
+        onChange={onMomentChange}
+        onPressEnter={onMomentFinish}
+      />
+
+      <Player play={play} pause={pause} />
 
       <Table
         columns={columns}
@@ -301,12 +332,12 @@ const LightningTable = () => {
           const { color = [] } = tableData
           const colNames = Object.keys(color[rowIndex])
           const colorStyle = color[rowIndex][colId]
-          const isHighlighted = colorStyle === "#000000"
+          const isHighlighted = colorStyle === '#000000'
 
           return {
             style: {
               backgroundColor:
-                colorStyle === "#000000" ? "#ffffff" : colorStyle,
+                colorStyle === '#000000' ? '#ffffff' : colorStyle,
             },
           }
         }}
@@ -318,16 +349,6 @@ const LightningTable = () => {
         //  value={moment}
         onChange={onMomentChange}
       /> */}
-
-      <div style={{ marginTop: "2em" }} />
-
-      <Input
-        style={inputStyle}
-        onChange={onMomentChange}
-        onPressEnter={onMomentFinish}
-      />
-
-      <Player />
     </div>
   )
 }
