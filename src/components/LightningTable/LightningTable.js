@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react'
 import * as momentjs from 'moment'
-import { getData, getTime, timeDiffInSecond, addSeconds } from '../../utils'
+import { getData, addSeconds } from '../../utils'
 import Player from '../Player'
 import Table from '../common/Table'
 // import Input from "../common/Input"
 
-import { Input } from 'antd'
+import { Input, Slider } from 'antd'
 
-import { MOCK_DATA, DATE_FORMAT } from '../../utils'
+import { MOCK_DATA } from '../../utils'
 
 import './LightningTable.scss'
 
@@ -33,15 +33,14 @@ const formatColor = (rows, columns) => {
 
 const DELAY_TIME = 1000 // millisecond
 const STEP_TIME = 1 // second
+const MIN_INDEX = 0 // index in table data returned
+const MAX_INDEX = 99 // index in table data returned
 
 const tableStyle = {
   maxWidth: '80%',
   overflowX: 'scroll',
-  // padding: "20px 50px",
-  // border: "1px solid black",
   boxShadow: '0px 0px 4px rgba(0,0,0,0.4)',
   margin: '0 auto',
-  // backgroundColor: "#e6e6e6",
 }
 
 const inputStyle = { width: 200, textAlign: 'center' }
@@ -55,18 +54,24 @@ const initialStartTime = {
 const LightningTable = () => {
   const [startTime, setStartTime] = useState(initialStartTime)
   const [tableData, setTableData] = useState({ data: [], color: [] })
+  const [stepValue, setStepValue] = useState(1)
+  const [isPlaying, setIsPlaying] = useState(false)
   const [tick, setTick] = useState(startTime.index)
   const [moment, setMoment] = useState('')
   const momentRef = useRef(null)
 
   const update = () => {
-    if (tick >= 100) {
-      setTick(0)
+    if (startTime.index >= MAX_INDEX) {
       setStartTime(initialStartTime)
+      clearUpdateInterval()
       return
     }
     forward()
-    setTick((prev) => prev + 1)
+    // setStartTime((prevStartTime) => ({
+    //   ...prevStartTime,
+    //   index: prevStartTime.index + 1,
+    // }))
+    // setTick((prev) => prev + 1)
   }
 
   // Update table every 1 second
@@ -79,17 +84,17 @@ const LightningTable = () => {
   useEffect(() => {}, [])
 
   const updateEverySecond = () => {
-    updateInterval = setInterval(update, DELAY_TIME)
+    setIsPlaying((prevState) => !prevState)
+    updateInterval = setInterval(update, DELAY_TIME / stepValue)
   }
 
-  // Update on interval
-  useEffect(() => {
-    updateTableData({})
-  }, [tick])
+  // // Update on interval
+  // useEffect(() => {
+  //   updateTableData({})
+  // }, [tick])
 
   // Update 1 second
   useEffect(() => {
-    console.log('STARTTT')
     updateTableData({ useTick: false })
     // setTick(startTime.index)
   }, [startTime])
@@ -106,23 +111,21 @@ const LightningTable = () => {
     return cols
   }, [])
 
-  const formattedRow = useMemo(() => {
-    const tickIndex = tick
-    return formatRow(MOCK_DATA.snapshots[tickIndex][0], columns)
-  }, [])
+  // const formattedRow = useMemo(() => {
+  //   const tickIndex = tick
+  //   return formatRow(MOCK_DATA.snapshots[tickIndex][0], columns)
+  // }, [])
 
   const formattedRows = useMemo(() => {
-    const tickIndex = tick
+    const tickIndex = startTime.index
     const result = MOCK_DATA.snapshots[tickIndex].map((item, index) => {
       return formatRow(MOCK_DATA.snapshots[tickIndex][index], columns)
     })
-
-    // console.log("formattedRows", result)
   }, [])
 
   const updateTableData = ({ useTick = true }) => {
-    const updateIndex = useTick ? tick : startTime.index
-    if (!useTick) console.log('USE INDEX')
+    const updateIndex = startTime.index
+    if (updateIndex >= MAX_INDEX || updateIndex <= MIN_INDEX) return
     console.log(updateIndex)
     const rowResult = MOCK_DATA.snapshots[updateIndex].map((item, index) => {
       return formatRow(MOCK_DATA.snapshots[updateIndex][index], columns)
@@ -263,14 +266,14 @@ const LightningTable = () => {
     []
   )
 
-  const onMomentChange = (e) => {
-    // if (!momentRef) return
-    // const {
-    //   current: { value = "" },
-    // } = momentRef
-    // if (!value) return
-    // console.log(momentRef.current.value)
-  }
+  // const onMomentChange = (e) => {
+  // if (!momentRef) return
+  // const {
+  //   current: { value = "" },
+  // } = momentRef
+  // if (!value) return
+  // console.log(momentRef.current.value)
+  // }
 
   const MemoizedTable = useMemo(
     () => (
@@ -303,12 +306,20 @@ const LightningTable = () => {
 
   const onMomentFinish = (e) => {
     const value = e.target.value
+  }
 
-    console.log(e.target.value)
+  const onMomentChange = (e) => {
+    const value = e.target.value
+    setStartTime({
+      ...startTime,
+      time: value,
+    })
   }
 
   const clearUpdateInterval = () => {
+    clearInterval(updateInterval)
     if (updateInterval) {
+      setIsPlaying((prevState) => !prevState)
       clearInterval(updateInterval)
     }
   }
@@ -324,18 +335,28 @@ const LightningTable = () => {
   const step = (seconds) => {
     const { time, index } = startTime
     const isBackward = seconds < 0
-    const MIN_INDEX = 0
-    const MAX_INDEX = 99
-    if (isBackward && index === MIN_INDEX) {
-      return
-    }
-
-    if (!isBackward && index === MAX_INDEX) {
-      return
-    }
-    const updatedIndex = isBackward ? index - 1 : index + 1
-
+    console.log(index)
+    // if (!isPlaying) {
+    //   if (isBackward && index <= MIN_INDEX) {
+    //     console.log(1)
+    //     return
+    //   }
+    //   if (!isBackward && index >= MAX_INDEX) {
+    //     console.log(2)
+    //     return
+    //   }
+    // } else {
+    // }
+    // if (index >= MAX_INDEX && index <= MIN_INDEX) {
+    //   console.log('OUT')
+    //   return
+    // }
+    console.log(3)
     setStartTime((prevTime) => {
+      const updatedIndex = isBackward
+        ? prevTime.index - Math.abs(seconds)
+        : prevTime.index + Math.abs(seconds)
+      // console.log('UPDATED INDEX', updatedIndex)
       return {
         time: addSeconds({ time: prevTime.time, seconds }),
         index: updatedIndex,
@@ -344,11 +365,22 @@ const LightningTable = () => {
   }
 
   const forward = () => {
-    step(STEP_TIME)
+    const { index } = startTime
+    if (index <= MIN_INDEX || index >= MAX_INDEX) {
+      console.log('OUT OF HERE')
+      return
+    }
+    // if (isPlaying) {
+    // }
+    step(stepValue)
   }
 
   const backward = () => {
-    step(-STEP_TIME)
+    step(-stepValue)
+  }
+
+  const onStepChange = (val) => {
+    setStepValue(val)
   }
 
   return (
@@ -369,9 +401,30 @@ const LightningTable = () => {
         style={inputStyle}
         onChange={onMomentChange}
         onPressEnter={onMomentFinish}
+        value={startTime.time}
       />
 
       <Player play={play} pause={pause} forward={forward} backward={backward} />
+
+      <div
+        style={{
+          width: '250px',
+          margin: '1em auto',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}
+      >
+        <span>Speed</span>
+
+        <Slider
+          style={{ width: '100%', marginLeft: '20px' }}
+          min={1}
+          max={20}
+          onChange={onStepChange}
+          value={typeof stepValue === 'number' ? stepValue : 0}
+        />
+      </div>
 
       <Table
         columns={columns}
