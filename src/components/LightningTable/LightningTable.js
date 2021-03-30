@@ -7,7 +7,7 @@ import Table from '../common/Table'
 
 import { Input } from 'antd'
 
-import { MOCK_DATA } from '../../utils'
+import { MOCK_DATA, DATE_FORMAT } from '../../utils'
 
 import './LightningTable.scss'
 
@@ -31,7 +31,7 @@ const formatColor = (rows, columns) => {
   return formattedColor
 }
 
-const DELAY_TIME = 500
+const DELAY_TIME = 1000
 
 const tableStyle = {
   maxWidth: '80%',
@@ -46,12 +46,13 @@ const tableStyle = {
 const inputStyle = { width: 200, textAlign: 'center' }
 
 let updateInterval = undefined
+const initialStartTime = {
+  time: '09:30:58',
+  index: 29,
+}
 
 const LightningTable = () => {
-  const [startTime, setStartTime] = useState({
-    time: '09:30:00',
-    index: 29,
-  })
+  const [startTime, setStartTime] = useState(initialStartTime)
   const [tableData, setTableData] = useState({ data: [], color: [] })
   const [tick, setTick] = useState(startTime.index)
   const [moment, setMoment] = useState('')
@@ -60,8 +61,10 @@ const LightningTable = () => {
   const update = () => {
     if (tick >= 100) {
       setTick(0)
+      setStartTime(initialStartTime)
       return
     }
+    forward()
     setTick((prev) => prev + 1)
   }
 
@@ -72,13 +75,22 @@ const LightningTable = () => {
     }
   }, [])
 
+  useEffect(() => {}, [])
+
   const updateEverySecond = () => {
     updateInterval = setInterval(update, DELAY_TIME)
   }
 
+  // Update on interval
   useEffect(() => {
-    updateTableData()
+    updateTableData({})
   }, [tick])
+
+  // Update 1 second
+  useEffect(() => {
+    console.log('STARTTT')
+    updateTableData({ useTick: false })
+  }, [startTime])
 
   const columns = useMemo(() => {
     const columnNames = Object.keys(MOCK_DATA.columns)
@@ -106,13 +118,14 @@ const LightningTable = () => {
     // console.log("formattedRows", result)
   }, [])
 
-  const updateTableData = () => {
-    const tickIndex = tick
-    const rowResult = MOCK_DATA.snapshots[tickIndex].map((item, index) => {
-      return formatRow(MOCK_DATA.snapshots[tickIndex][index], columns)
+  const updateTableData = ({ useTick = true }) => {
+    const updateIndex = useTick ? tick : startTime.index
+    console.log(updateIndex)
+    const rowResult = MOCK_DATA.snapshots[updateIndex].map((item, index) => {
+      return formatRow(MOCK_DATA.snapshots[updateIndex][index], columns)
     })
-    const colorResult = MOCK_DATA.colors[tickIndex].map((item, index) => {
-      return formatColor(MOCK_DATA.colors[tickIndex][index], columns)
+    const colorResult = MOCK_DATA.colors[updateIndex].map((item, index) => {
+      return formatColor(MOCK_DATA.colors[updateIndex][index], columns)
     })
     // console.log("DATA HERE", rowResult)
     // console.log("COLORS HERE", colorResult)
@@ -126,7 +139,7 @@ const LightningTable = () => {
       // console.log("Original", data)
     }
     fetchData()
-    updateTableData()
+    updateTableData({})
   }, [formattedRows])
 
   const columns2 = useMemo(
@@ -286,6 +299,8 @@ const LightningTable = () => {
   )
 
   const onMomentFinish = (e) => {
+    const value = e.target.value
+
     console.log(e.target.value)
   }
 
@@ -303,6 +318,34 @@ const LightningTable = () => {
     clearUpdateInterval()
   }
 
+  const forward = () => {
+    const { time, index } = startTime
+
+    console.log('FORWARD')
+    // console.log(momentjs(time, DATE_FORMAT))
+    console.log(addSeconds({ time, seconds: 1 }))
+    setStartTime((prevTime) => {
+      return {
+        time: addSeconds({ time: prevTime.time, seconds: 1 }),
+        index: prevTime.index + 1,
+      }
+    })
+  }
+
+  const backward = () => {
+    const { time, index } = startTime
+
+    console.log('FORWARD')
+    // console.log(momentjs(time, DATE_FORMAT))
+    console.log(addSeconds({ time, seconds: 1 }))
+    setStartTime((prevTime) => {
+      return {
+        time: addSeconds({ time: prevTime.time, seconds: -1 }),
+        index: prevTime.index - 1,
+      }
+    })
+  }
+
   return (
     <div className='lightning-table'>
       <h1>Home</h1>
@@ -311,13 +354,19 @@ const LightningTable = () => {
 
       <div style={{ marginTop: '2em' }} />
 
+      {startTime.time && (
+        <span style={{ fontSize: '24px', display: 'block', fontWeight: '600' }}>
+          {startTime.time}
+        </span>
+      )}
+
       <Input
         style={inputStyle}
         onChange={onMomentChange}
         onPressEnter={onMomentFinish}
       />
 
-      <Player play={play} pause={pause} />
+      <Player play={play} pause={pause} forward={forward} backward={backward} />
 
       <Table
         columns={columns}

@@ -12,7 +12,7 @@ import './Player.scss'
 
 const Player = (props) => {
   const [playing, setPlaying] = useState(false)
-  const { play, pause } = props
+  const { play, pause, forward, backward } = props
 
   useEffect(() => {
     if (playing) {
@@ -30,12 +30,21 @@ const Player = (props) => {
   const PlayIcon = () =>
     playing ? <PauseCircleFilled /> : <PlayCircleFilled />
 
+  const onForwardClick = () => {
+    forward()
+  }
+
+  const onBackwardClick = () => {
+    backward()
+  }
+
   return (
     <div className='player-controls'>
       <Button
         type='primary'
         icon={<StepBackwardFilled />}
         size='large'
+        onClick={onBackwardClick}
       ></Button>
       <Button
         type='primary'
@@ -43,7 +52,12 @@ const Player = (props) => {
         size='large'
         onClick={onPlayClick}
       ></Button>
-      <Button type='primary' icon={<StepForwardFilled />} size='large'></Button>
+      <Button
+        type='primary'
+        icon={<StepForwardFilled />}
+        size='large'
+        onClick={onForwardClick}
+      ></Button>
     </div>
   )
 }
