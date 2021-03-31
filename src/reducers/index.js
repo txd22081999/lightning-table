@@ -3,7 +3,8 @@ import countReducer from './count'
 import lightningTableReducer from './lightningTable'
 
 const rootReducer = combineReducers({
-  countReducer,
+  count: countReducer,
+  lightningTable: lightningTableReducer,
 })
 
 export default rootReducer

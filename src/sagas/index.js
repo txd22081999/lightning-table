@@ -1,17 +1,10 @@
-import { all, call, delay, put, takeEvery } from 'redux-saga/effects'
+import { all, call } from 'redux-saga/effects'
+import countSaga from './count'
+import lightningTableSaga, { watchGetLightningData } from './lightningTable'
 
-export function* incrementAsync() {
-  yield delay(1000)
-  yield put({type: 'INCREMENT'})
+function* rootSagas() {
+  // yield all(lightningTableSaga())
+  yield all([call(lightningTableSaga)])
 }
 
-export function* watchIncrementAsync() {
-  yield takeEvery('INCREMENT_ASYNC', incrementAsync)
-}
-
-// single entry point to start all Sagas at once
-export default function* rootSaga() {
-  yield all([
-    call(watchIncrementAsync),
-  ])
-}
+export default rootSagas

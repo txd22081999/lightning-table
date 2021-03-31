@@ -1,3 +1,5 @@
+import { lightningTableTypes } from '../types'
+
 const initialState = {
   data: {},
   loading: false,
@@ -5,12 +7,29 @@ const initialState = {
 }
 
 function lightningTable(state = initialState, action) {
-  const { type } = action
+  const { type, payload } = action
   switch (type) {
-    case 'INCREMENT':
-      return state + 1
-    case 'DECREMENT':
-      return state - 1
+    case lightningTableTypes.GET_DATA:
+      return {
+        ...state,
+        loading: true,
+      }
+    case lightningTableTypes.GET_DATA_SUCCESS: {
+      console.log('PAYLOAD', payload)
+      return {
+        ...state,
+        data: payload.data,
+        loading: false,
+        error: '',
+      }
+    }
+    case lightningTableTypes.GET_DATA_FAILURE:
+      return {
+        ...state,
+        data: [],
+        loading: false,
+        error: payload.error,
+      }
     default:
       return state
   }

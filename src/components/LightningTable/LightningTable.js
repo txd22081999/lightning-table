@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react'
+import { useDispatch } from 'react-redux'
 import * as momentjs from 'moment'
 import { getData, addSeconds } from '../../utils'
 import Player from '../Player'
@@ -8,6 +9,7 @@ import Table from '../common/Table'
 import { Input, Slider } from 'antd'
 import { LoadingOutlined } from '@ant-design/icons'
 
+import { getData as getDataAction } from '../../actions/lightningTable'
 import { getReplayerData } from '../../api'
 import { MOCK_DATA, colorMapping } from '../../utils'
 
@@ -62,6 +64,8 @@ const LightningTable = () => {
   const [moment, setMoment] = useState('')
   const momentRef = useRef(null)
 
+  const dispatch = useDispatch()
+
   const update = () => {
     if (startTime.index >= MAX_INDEX) {
       setStartTime(initialStartTime)
@@ -101,6 +105,7 @@ const LightningTable = () => {
       console.log('RESPONSE', response)
     }
     fetchData()
+    dispatch(getDataAction())
     return () => {
       clearUpdateInterval()
     }

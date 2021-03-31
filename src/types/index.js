@@ -1,3 +1,4 @@
 import countTypes from './count'
+import lightningTableTypes from './lightningTable'
 
-export { countTypes }
+export { countTypes, lightningTableTypes }
