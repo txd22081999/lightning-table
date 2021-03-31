@@ -2,8 +2,10 @@ const INCREMENT = 'INCREMENT'
 const DECREMENT = 'DECREMENT'
 const INCREMENT_ASYNC = 'INCREMENT_ASYNC'
 
-export default {
+const types = {
   INCREMENT,
   DECREMENT,
   INCREMENT_ASYNC,
 }
+
+export default types

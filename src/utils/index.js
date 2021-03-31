@@ -37,6 +37,32 @@ export const addSeconds = ({ time, seconds }) => {
   return moment(time2, DATE_FORMAT).format(DATE_FORMAT)
 }
 
+export const colorMapping = (color) => {
+  const COLORS = {
+    WHITE: '#ffffff',
+    GREEN: '#6EFC58',
+    TEAL: '#58FCED',
+    PINK: '#FC72EF',
+    // PURPLE: '#7D3BB3',
+    YELLOW: '#FFFF00',
+    BLUE: '#366fe9',
+    RED: '#FF4841',
+  }
+
+  const { WHITE, GREEN, TEAL, PINK, YELLOW, BLUE, RED } = COLORS
+  const COLOR_MAPPER = {
+    1: WHITE,
+    2: GREEN,
+    3: PINK,
+    4: TEAL,
+    5: RED,
+    6: BLUE,
+    7: YELLOW,
+  }
+
+  return COLOR_MAPPER[color] || COLOR_MAPPER[0]
+}
+
 // export const add = ({ time, seconds }) => {
 //   let time2 = moment(time)
 //   const dateFormat = 'HH:mm:ss'

@@ -6,25 +6,27 @@ import Table from '../common/Table'
 // import Input from "../common/Input"
 
 import { Input, Slider } from 'antd'
+import { LoadingOutlined } from '@ant-design/icons'
 
-import { MOCK_DATA } from '../../utils'
+import { getReplayerData } from '../../api'
+import { MOCK_DATA, colorMapping } from '../../utils'
 
 import './LightningTable.scss'
 
 const formatRow = (rows, columns) => {
+  if (columns.length === 0) return {}
+
   const formattedRow = {}
-  // console.log("ROWS", rows)
   rows.forEach((item, index) => {
-    // const columnName = MOCK_DATA.columns[index]
-    formattedRow[columns[index].Header] = item
+    const col = { ...columns[index] }
+    formattedRow[col['Header']] = item
   })
   return formattedRow
 }
 
 const formatColor = (rows, columns) => {
+  if (columns.length === 0) return {}
   const formattedColor = {}
-  // console.log("ROWS", rows)
-  // console.log(rows)
   rows.forEach((item, index) => {
     formattedColor[columns[index].Header] = item
   })
@@ -47,13 +49,13 @@ const inputStyle = { width: 200, textAlign: 'center' }
 
 let updateInterval = undefined
 const initialStartTime = {
-  time: '09:30:00',
+  time: '',
   index: 29,
 }
 
 const LightningTable = () => {
   const [startTime, setStartTime] = useState(initialStartTime)
-  const [tableData, setTableData] = useState({ data: [], color: [] })
+  const [tableData, setTableData] = useState({ raw: {}, data: [], color: [] })
   const [stepValue, setStepValue] = useState(1)
   const [isPlaying, setIsPlaying] = useState(false)
   const [tick, setTick] = useState(startTime.index)
@@ -75,7 +77,30 @@ const LightningTable = () => {
   }
 
   // Update table every 1 second
+
+  console.log(tableData.data)
+
   useEffect(() => {
+    const fetchData = async () => {
+      console.log('FETCH HERE')
+      // const myData = await JSON.parse(MOCK_DATA)
+      const myData = MOCK_DATA
+      console.log(myData)
+      const response = await getReplayerData()
+      const { status, data = {} } = response
+      if (status !== 200) return
+      setTableData({
+        ...tableData,
+        raw: data,
+      })
+      const { times } = data
+      setStartTime({
+        ...startTime,
+        time: times[0],
+      })
+      console.log('RESPONSE', response)
+    }
+    fetchData()
     return () => {
       clearUpdateInterval()
     }
@@ -100,43 +125,78 @@ const LightningTable = () => {
   }, [startTime])
 
   const columns = useMemo(() => {
-    const columnNames = Object.keys(MOCK_DATA.columns)
+    if (!tableData.raw || tableData.raw.length === 0 || !tableData.raw.columns)
+      return []
+    console.log('RUN COLUMNS')
+    console.log('Here', tableData.raw.columns)
+    const columnNames = Object.keys(tableData.raw.columns)
     const cols = columnNames.map((col) => ({
       Header: col,
       accessor: col,
       width: 500,
-      order: MOCK_DATA.columns[col],
+      order: tableData.raw.columns[col],
     }))
-    // console.log("COLUMNS", cols)
+
+    console.log(cols)
+
     return cols
-  }, [])
+  }, [tableData])
 
   // const formattedRow = useMemo(() => {
   //   const tickIndex = tick
-  //   return formatRow(MOCK_DATA.snapshots[tickIndex][0], columns)
+  //   return formatRow(tableData.data.snapshots[tickIndex][0], columns)
   // }, [])
 
   const formattedRows = useMemo(() => {
+    if (
+      !tableData.raw ||
+      tableData.raw.length === 0 ||
+      !tableData.raw.snapshots
+    )
+      return []
     const tickIndex = startTime.index
-    const result = MOCK_DATA.snapshots[tickIndex].map((item, index) => {
-      return formatRow(MOCK_DATA.snapshots[tickIndex][index], columns)
+    const result = tableData.raw.snapshots[tickIndex].map((item, index) => {
+      // return null
+      const rows = [...tableData.raw.snapshots[tickIndex][index]]
+      return formatRow(rows, columns)
     })
-  }, [])
+    setTableData({
+      ...tableData,
+      data: result,
+    })
+    console.log(result)
+  }, [tableData.raw])
 
-  const updateTableData = ({ useTick = true }) => {
+  const updateTableData = () => {
+    console.log('update table')
+    console.log(tableData)
+    // if (tableData.data.length === 0 || !tableData.data.snapshots) return
+    if (Object.keys(tableData.raw).length === 0) return
+
     const updateIndex = startTime.index
     if (updateIndex >= MAX_INDEX || updateIndex <= MIN_INDEX) return
     console.log(updateIndex)
-    const rowResult = MOCK_DATA.snapshots[updateIndex].map((item, index) => {
-      return formatRow(MOCK_DATA.snapshots[updateIndex][index], columns)
+    const snapshots = [...tableData.raw.snapshots[updateIndex]]
+    const rowResult = snapshots.map((item, index) => {
+      return formatRow(snapshots[index], columns)
     })
-    const colorResult = MOCK_DATA.colors[updateIndex].map((item, index) => {
-      return formatColor(MOCK_DATA.colors[updateIndex][index], columns)
+    const colors = [...tableData.raw.colors[updateIndex]]
+    console.log('RUN 123')
+    const colorResult = colors.map((item, index) => {
+      return formatColor(colors[index], columns)
     })
+    console.log(rowResult)
+    console.log(colorResult)
     // console.log("DATA HERE", rowResult)
     // console.log("COLORS HERE", colorResult)
-    setTableData({ color: colorResult, data: rowResult })
+    setTableData({ ...tableData, color: colorResult, data: rowResult })
   }
+
+  useEffect(() => {
+    if (tableData.raw && Object.keys(tableData.raw).length !== 0) {
+      updateTableData()
+    }
+  }, [tableData.raw])
 
   useEffect(() => {
     const fetchData = async () => {
@@ -146,7 +206,8 @@ const LightningTable = () => {
     }
     fetchData()
     updateTableData({})
-  }, [formattedRows])
+  }, [])
+  // }, [formattedRows])
 
   const columns2 = useMemo(
     () => [
@@ -391,11 +452,18 @@ const LightningTable = () => {
 
       <div style={{ marginTop: '2em' }} />
 
-      {startTime.time && (
-        <span style={{ fontSize: '24px', display: 'block', fontWeight: '600' }}>
-          {startTime.time}
-        </span>
-      )}
+      {/* {startTime.time && ( */}
+      <span
+        style={{
+          fontSize: '24px',
+          display: 'block',
+          fontWeight: '600',
+          minHeight: '25px',
+        }}
+      >
+        {startTime.time}
+      </span>
+      {/* )} */}
 
       <Input
         style={inputStyle}
@@ -418,37 +486,49 @@ const LightningTable = () => {
         <span>Speed</span>
 
         <Slider
-          style={{ width: '100%', marginLeft: '20px' }}
+          style={{ width: '100%', margin: '0 20px' }}
           min={1}
-          max={20}
+          max={5}
           onChange={onStepChange}
           value={typeof stepValue === 'number' ? stepValue : 0}
         />
+
+        <span style={{ fontWeight: '600' }}>{stepValue}</span>
       </div>
 
-      <Table
-        columns={columns}
-        data={tableData.data}
-        getCellProps={(cellInfo) => {
-          // console.log(cellInfo)
-          const {
-            column: { id: colId, order },
-            row: { id: rowIndex, value },
-          } = cellInfo
-          const { color = [] } = tableData
-          const colNames = Object.keys(color[rowIndex])
-          const colorStyle = color[rowIndex][colId]
-          const isHighlighted = colorStyle === '#000000'
+      {tableData.data.length !== 0 &&
+        tableData.color.length > 0 &&
+        console.log('HERE TABLE RENDER', tableData.data)}
+      {tableData.data.length !== 0 && tableData.color.length > 0 ? (
+        <Table
+          columns={columns}
+          data={tableData.data}
+          getCellProps={(cellInfo) => {
+            // console.log(cellInfo)
+            const {
+              column: { id: colId, order },
+              row: { id: rowIndex, value },
+            } = cellInfo
+            const { color = [] } = tableData
+            const colNames = Object.keys(color[rowIndex])
+            const colorStyle = color[rowIndex][colId]
+            const isHighlighted = colorStyle === '#000000'
+            const colorValue = colorMapping(colorStyle)
 
-          return {
-            style: {
-              backgroundColor:
-                colorStyle === '#000000' ? '#ffffff' : colorStyle,
-            },
-          }
-        }}
-        styles={tableStyle}
-      />
+            return {
+              style: {
+                backgroundColor: colorValue,
+              },
+            }
+          }}
+          styles={tableStyle}
+        />
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <span>Loading...</span>
+          <LoadingOutlined />
+        </div>
+      )}
 
       {/* <Input
         ref={momentRef}

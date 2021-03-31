@@ -1,15 +1,8 @@
-import types from './types';
+// import types from './types';
+import * as countAction from './count'
 
-const increment = () => ({
-  type: types.INCREMENT,
-});
+const actions = {
+  count: countAction,
+}
 
-export const decrement = () => ({
-  type: types.DECREMENT,
-});
-
-export const incrementAsync = error => ({
-  type: types.INCREMENT_ASYNC,
-});
-
-export default increment;
+export default actions

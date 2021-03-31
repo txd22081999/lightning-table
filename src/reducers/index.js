@@ -1,20 +1,9 @@
-import { combineReducers } from 'redux';
-
-const initialState = 0;
-
-function count(state = initialState, action) {
-  switch (action.type) {
-    case 'INCREMENT':
-      return state + 1
-    case 'DECREMENT':
-      return state - 1
-  default:
-    return state;
-  }
-}
+import { combineReducers } from 'redux'
+import countReducer from './count'
+import lightningTableReducer from './lightningTable'
 
 const rootReducer = combineReducers({
-  count
-});
+  countReducer,
+})
 
-export default rootReducer;
+export default rootReducer
