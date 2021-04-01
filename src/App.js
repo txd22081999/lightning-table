@@ -15,8 +15,6 @@ function App() {
   const counter = useSelector((state) => state.count)
   const lightningTable = useSelector((state) => state.lightningTable)
 
-  console.log(lightningTable)
-
   return (
     <div className='App'>
       <Home />

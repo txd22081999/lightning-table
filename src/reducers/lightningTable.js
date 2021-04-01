@@ -3,7 +3,7 @@ import { lightningTableTypes } from '../types'
 const initialState = {
   data: {},
   loading: false,
-  error: '',
+  error: null,
 }
 
 function lightningTable(state = initialState, action) {
@@ -20,7 +20,7 @@ function lightningTable(state = initialState, action) {
         ...state,
         data: payload.data,
         loading: false,
-        error: '',
+        error: null,
       }
     }
     case lightningTableTypes.GET_DATA_FAILURE:

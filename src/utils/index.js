@@ -63,6 +63,20 @@ export const colorMapping = (color) => {
   return COLOR_MAPPER[color] || COLOR_MAPPER[0]
 }
 
+export const isEmpty = (obj) => {
+  return Object.keys(obj).length === 0
+}
+
+export const unixTime = (time) => {
+  return moment(time, DATE_FORMAT).unix()
+}
+
+export const originalTime = (unixTime) => {
+  const time = moment.unix(unixTime).format(DATE_FORMAT)
+  console.log(time)
+  return time
+}
+
 // export const add = ({ time, seconds }) => {
 //   let time2 = moment(time)
 //   const dateFormat = 'HH:mm:ss'

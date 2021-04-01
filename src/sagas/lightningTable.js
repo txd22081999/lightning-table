@@ -9,7 +9,7 @@ function* getData() {
     console.error('Fetch data failed')
     // console.error();
   }
-  console.log(data)
+  // console.log(data)
   yield put({ type: types.GET_DATA_SUCCESS, payload: { data } })
 }
 
