@@ -1,7 +1,9 @@
 .table-inner-container {
-  margin: 20px 50px;
-  // width: 100%;
+  margin: 20px auto;
+  width: 50%;
+  table-layout: fixed;
   overflow: scroll;
+  max-height: 500px;
   box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.4);
 }
 
@@ -21,7 +23,6 @@
   background-color: white;
   border-bottom: 1px solid #000;
   padding: 2px 4px;
-  width: 20px;
   // color: #FFFF00
 }
 

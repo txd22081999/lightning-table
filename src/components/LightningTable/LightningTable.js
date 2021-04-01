@@ -99,25 +99,25 @@ const LightningTable = (props) => {
   // Update table every 1 second
   useEffect(() => {
     const fetchData = async () => {
-      console.log('FETCH HERE')
-      // const myData = await JSON.parse(MOCK_DATA)
-      const myData = MOCK_DATA
-      console.log(myData)
-      const response = await getReplayerData()
-      const { status, data = {} } = response
-      if (status !== 200) return
-      setTableData({
-        ...tableData,
-        raw: data,
-      })
-      const { times } = data
-      setStartTime({
-        ...startTime,
-        time: times[0],
-      })
+      // console.log('FETCH HERE')
+      // // const myData = await JSON.parse(MOCK_DATA)
+      // const myData = MOCK_DATA
+      // console.log(myData)
+      // const response = await getReplayerData()
+      // const { status, data = {} } = response
+      // if (status !== 200) return
+      // setTableData({
+      //   ...tableData,
+      //   raw: data,
+      // })
+      // const { times } = data
+      // setStartTime({
+      //   ...startTime,
+      //   time: times[0],
+      // })
     }
-    fetchData()
-    dispatch(getDataAction()) // Fetch table data
+    // fetchData()
+
     return () => {
       clearUpdateInterval()
     }
@@ -204,8 +204,8 @@ const LightningTable = (props) => {
         </div>
         <div
           style={{
-            width: '450px',
-            margin: '1em auto',
+            width: '650px',
+            margin: '0.5em auto',
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
@@ -215,7 +215,7 @@ const LightningTable = (props) => {
           <span>{originalTime(exactTime.start)}</span>
 
           <Slider
-            style={{ width: '100%', margin: '0 20px' }}
+            style={{ width: '100%', margin: '0 8px' }}
             range
             min={min}
             max={max}
@@ -252,6 +252,11 @@ const LightningTable = (props) => {
     setTableData({
       ...tableData,
       raw: data,
+    })
+    const { times } = data
+    setStartTime({
+      ...startTime,
+      time: times[0],
     })
     const { times: timesProp = [] } = data
     const unixTimes = timesProp.map((item) => {
@@ -337,12 +342,7 @@ const LightningTable = (props) => {
   }, [tableData.raw])
 
   useEffect(() => {
-    // const fetchData = async () => {
-    //   const { data = [] } = await getData()
-    // }
-    // fetchData()
     updateTableData({})
-    // }, [])
   }, [formattedRows])
 
   const MemoizedTable = useMemo(
@@ -435,6 +435,7 @@ const LightningTable = (props) => {
   }
 
   const handleApply = () => {
+    dispatch(getDataAction()) // Fetch table data
     console.log('APPLY', timeRange)
   }
 
