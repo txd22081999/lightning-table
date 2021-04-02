@@ -1,3 +1,16 @@
 .Home {
   // background-color: pink;
+
+  .charts-container {
+    display: grid;
+    width: 100%;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: auto;
+    grid-gap: 5px;
+    background-color: gray;
+  }
+
+  // .ps-chart {
+  //   grid-template: 'ps';
+  // }
 }
