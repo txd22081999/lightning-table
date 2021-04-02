@@ -27,6 +27,7 @@ import {
 
 import 'boxicons' // Icons
 import './LightningTable.scss'
+import TimeSlider from '../TimeSlider'
 
 const formatRow = (rows, columns) => {
   if (columns.length === 0) return {}
@@ -88,8 +89,6 @@ const LightningTable = (props) => {
   const [tick, setTick] = useState(startTime.index)
   const [moment, setMoment] = useState('')
   const momentRef = useRef(null)
-
-  console.log(tableStore)
 
   const update = () => {
     if (startTime.index >= MAX_INDEX) {
@@ -157,24 +156,20 @@ const LightningTable = (props) => {
     </div>
   )
 
-  const a = lodash.defaults({ a: 1 }, { a: 3, b: 2 })
-  console.log('HERERERE', a)
   const onTimeChange = (values) => {
-    console.log(values)
+    console.log('CALL HERE')
     const [start, end] = values
     // console.log('VALUE', value)
+    console.log('NEW', values)
+    console.log(originalTime(start), originalTime(end))
     setTimeRange({
-      start: start,
-      end: end,
+      start: parseInt(start),
+      end: parseInt(end),
     })
     const DEBOUNCE_TIME = 500
-    console.log('HERE')
-    console.log(lodash.debounce)
 
     // Fetch data in specific time range
     const fetchDataByRange = lodash.debounce(() => {
-      console.log('DONE')
-      console.log(values)
       dispatch(
         getDataAction({
           rangeTime: [originalTime(start), originalTime(end)],
@@ -183,8 +178,6 @@ const LightningTable = (props) => {
     }, DEBOUNCE_TIME)
 
     fetchDataByRange()
-    // console.log(start, end)
-    // console.log('UNIX', originalTime(start), originalTime(end))
   }
 
   // const onAfterChange = (value) => {
@@ -200,105 +193,85 @@ const LightningTable = (props) => {
     console.log('FNISH', value)
   }
 
-  const TimeSlider = useCallback(() => {
-    if (timeRange.start === undefined) return null
-    const { start, end } = exactTime
-    const min = parseInt(start),
-      max = parseInt(end)
+  // const TimeSlider = useCallback(() => {
+  //   console.log('TIME SLIDER HERE')
+  //   if (timeRange.start === undefined || timeRange.start === '') return null
+  //   const { start, end } = exactTime
+  //   const min = parseInt(start),
+  //     max = parseInt(end)
 
-    const formatter = (value) => {
-      return originalTime(value).toString()
-    }
+  //   const formatter = (value) => {
+  //     return originalTime(value).toString()
+  //   }
 
-    console.log('RANGE', timeRange)
-    const timeSliderValue = [timeRange.start, timeRange.end]
-    console.log(timeSliderValue)
+  //   const timeSliderValue = [timeRange.start, timeRange.end]
 
-    return (
-      <p>
-        <div
-          style={{
-            width: '180px',
-            margin: '0 auto',
-            display: 'flex',
-            justifyContent: 'space-between',
-            fontWeight: '600',
-            fontSize: '1.2em',
-          }}
-        >
-          <span>
-            {/* {momentjs(timeRange.start).format('HH:mm:ss')} */}
-            {originalTime(timeRange.start)}
-          </span>
-          <span>
-            {/* {momentjs(timeRange.start).format('HH:mm:ss')} */}
-            {originalTime(timeRange.end)}
-          </span>
-        </div>
-        <div
-          style={{
-            maxWidth: '650px',
-            margin: '0.5em auto',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            padding: '0 10px',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            <span>{originalTime(exactTime.start)}</span>
-            {/* <box-icon type='solid' name='sun' class='time-icon day'></box-icon> */}
-          </div>
+  //   console.log(timeSliderValue)
+  //   return (
+  //     <>
+  //       <div
+  //         style={{
+  //           width: '180px',
+  //           margin: '0 auto',
+  //           display: 'flex',
+  //           justifyContent: 'space-between',
+  //           fontWeight: '600',
+  //           fontSize: '1.2em',
+  //         }}
+  //       >
+  //         <span>
+  //           {/* {momentjs(timeRange.start).format('HH:mm:ss')} */}
+  //           {originalTime(timeRange.start)}
+  //         </span>
+  //         <span>
+  //           {/* {momentjs(timeRange.start).format('HH:mm:ss')} */}
+  //           {originalTime(timeRange.end)}
+  //         </span>
+  //       </div>
+  //       <div
+  //         style={{
+  //           maxWidth: '650px',
+  //           margin: '0.5em auto',
+  //           display: 'flex',
+  //           justifyContent: 'space-between',
+  //           alignItems: 'center',
+  //           padding: '0 10px',
+  //         }}
+  //       >
+  //         <div style={{ display: 'flex', alignItems: 'center' }}>
+  //           <span>{originalTime(exactTime.start)}</span>
+  //           <box-icon type='solid' name='sun' class='time-icon day'></box-icon>
+  //         </div>
 
-          {/* <Slider
-            style={{ width: '100%', margin: '0 8px' }}
-            range
-            min={min}
-            max={max}
-            step={1}
-            onAfterChange={onTimeFinish}
-            onChange={onTimeChange}
-            value={[timeRange.start, timeRange.end]}
-            tipFormatter={formatter}
-          /> */}
+  //         <ReactSlider
+  //           min={min}
+  //           max={max}
+  //           values={timeSliderValue}
+  //           // onChange={onTimeChange}
+  //           onSliderFinish={onTimeChange}
+  //         />
 
-          <ReactSlider
-            min={min}
-            max={max}
-            values={[timeRange.start, timeRange.end]}
-            // onChange={onTimeChange}
-            onSliderFinish={onTimeChange}
-          />
-
-          <div style={{ display: 'flex' }}>
-            {/* <box-icon
-              class='time-icon night'
-              name='moon'
-              type='solid'
-              styles={{ color: 'gray', fill: 'gray' }}
-            ></box-icon> */}
-            <span>{originalTime(exactTime.end)}</span>
-          </div>
-
-          {/* <Button
-            style={{ marginLeft: '20px' }}
-            type='primary'
-            onClick={handleApply}
-          >
-            Apply
-          </Button> */}
-        </div>
-      </p>
-    )
-  }, [])
+  //         <div style={{ display: 'flex' }}>
+  //           <box-icon
+  //             class='time-icon night'
+  //             name='moon'
+  //             type='solid'
+  //             styles={{ color: 'gray', fill: 'gray' }}
+  //           ></box-icon>
+  //           <span>{originalTime(exactTime.end)}</span>
+  //         </div>
+  //       </div>
+  //     </>
+  //   )
+  // }, [])
 
   useEffect(() => {
-    console.log('RENDER BY TIME')
+    console.log('RERENDER BY TIMERANGE')
+    console.log(timeRange)
   }, [timeRange])
 
   // Process time data from store
   useEffect(() => {
-    console.log('RUN HERE')
     const { data, loading, error } = tableStore
     if (isEmpty(data)) return
     setTableData({
@@ -306,7 +279,6 @@ const LightningTable = (props) => {
       raw: data,
     })
     const { times } = data
-    console.log(times[0])
     setStartTime({
       ...startTime,
       time: times[0],
@@ -321,7 +293,10 @@ const LightningTable = (props) => {
     const end = unixTimes[unixTimes.length - 1]
 
     const offset = end - start
-    setTimeRange({ start: start + offset / 3, end: start + offset / 2 })
+    setTimeRange({
+      start: parseInt(start + offset / 3),
+      end: parseInt(start + offset / 2),
+    })
     // setExactTime({ start, end })
     // setTimeRange({ start: 0, value: 100 })
   }, [tableStore])
@@ -494,7 +469,6 @@ const LightningTable = (props) => {
         rangeTime: ['10:00:00', '10:02:00'],
       })
     ) // Fetch table data
-    console.log('APPLY', timeRange)
   }
 
   return (
@@ -515,18 +489,33 @@ const LightningTable = (props) => {
       </span>
       {/* )} */}
 
-      <Input
+      {/* <Input
         style={inputStyle}
         onChange={onMomentChange}
         onPressEnter={onMomentFinish}
         value={startTime.time}
-      />
+      /> */}
 
       <Player play={play} pause={pause} forward={forward} backward={backward} />
 
       <SpeedSlider />
 
-      <TimeSlider />
+      <TimeSlider
+        timeRange={timeRange}
+        exactTime={exactTime}
+        onTimeChange={onTimeChange}
+      />
+
+      {/* {timeRange.start && console.log('OVER HERE') && (
+        <>
+          <p>WHAT UP</p>
+          <TimeSlider
+            timeRange={timeRange}
+            exactTime={exactTime}
+            onTimeChange={onTimeChange}
+          />
+        </>
+      )} */}
 
       {tableData.data.length !== 0 && tableData.color.length > 0}
       {tableData.data.length !== 0 && tableData.color.length > 0 ? (
@@ -534,7 +523,6 @@ const LightningTable = (props) => {
           columns={columns}
           data={tableData.data}
           getCellProps={(cellInfo) => {
-            // console.log(cellInfo)
             const {
               column: { id: colId, order },
               row: { id: rowIndex, value },

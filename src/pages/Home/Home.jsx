@@ -6,6 +6,7 @@ import PSChartContainer from '../../components/PSChartContainer'
 import Slider from '../../components/Slider'
 
 import './Home.scss'
+import TimeSlider from '../../components/TimeSlider'
 
 const Home = () => {
   return (
@@ -14,6 +15,8 @@ const Home = () => {
       {/* <BuySellLineChart /> */}
 
       {/* <Slider /> */}
+
+      {/* <TimeSlider /> */}
 
       <div className='charts-container'>
         <div className='chart-item ps-chart-container'>

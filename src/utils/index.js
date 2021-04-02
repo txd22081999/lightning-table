@@ -72,6 +72,7 @@ export const unixTime = (time) => {
 }
 
 export const originalTime = (unixTime) => {
+  if (!unixTime) return ''
   const time = moment.unix(unixTime).format(DATE_FORMAT)
   // console.log(time)
   return time

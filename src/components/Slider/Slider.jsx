@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react'
 // import { Range, getTrackBackground } from '../src/index';
 import { Range, getTrackBackground } from 'react-range'
-import { originalTime } from '../../utils'
+import { originalTime, unixTime } from '../../utils'
+
+import './Slider.scss'
 
 const STEP = 10
 const MIN = 0
@@ -17,12 +19,11 @@ const TwoThumbsDraggableTrack = (props) => {
     step = 1,
     onSliderFinish,
   } = props
-  // const [sliderValues, setSliderValues] = React.useState([25, 75])
-  const [sliderValues, setSliderValues] = useState([1617332440, 1617332460])
-
   console.log(values)
-  console.log(originalTime(values[0]))
-  console.log(originalTime(values[1]))
+  console.log(min)
+  // const [sliderValues, setSliderValues] = React.useState([25, 75])
+  const [sliderValues, setSliderValues] = useState(values)
+  const [updatedTime, setUpdatedTime] = useState({ start: '', end: '' })
 
   // useEffect(() => {
   //   if (!values) {
@@ -37,8 +38,77 @@ const TwoThumbsDraggableTrack = (props) => {
     onSliderFinish(vals)
   }
 
+  const onTimeChange = (e, type) => {
+    const time = e.target.value
+    console.log(time)
+    if (type === 'start') {
+      setUpdatedTime({
+        ...updatedTime,
+        start: time,
+      })
+    }
+    if (type === 'end') {
+      setUpdatedTime({
+        ...updatedTime,
+        end: time,
+      })
+    }
+    // console.log(e.key)
+    // console.log(e.target.value)
+    // const [start, end] = sliderValues
+    // setSliderValues([unixTime(startTime), end])
+  }
+
+  // const onTimeChange = (vals) => {
+  //   console.log(vals)
+  //   const { startTime, endTime } = vals
+  //   const [start, end] = sliderValues
+
+  //   if (startTime) {
+  //     setSliderValues([unixTime(startTime), end])
+  //   }
+  //   if (endTime) {
+  //     setSliderValues([start, unixTime(endTime)])
+  //   }
+  // }
+
+  const onKeyDown = (e, type) => {
+    const {
+      key,
+      target: { value },
+    } = e
+    if (key !== 'Enter') return
+
+    const item = value.split(':')
+    const isNotValidTime = item.some((v) => isNaN(v))
+    console.log(isNotValidTime)
+    if (isNotValidTime) {
+      setUpdatedTime({
+        start: '',
+        end: '',
+      })
+      return
+    }
+    setUpdatedTime({
+      start: '',
+      end: '',
+    })
+    const [start, end] = sliderValues
+    const unixValue = unixTime(value)
+    if (unixValue < min || unixValue > max) return
+
+    if (type === 'start') {
+      setSliderValues([unixValue, end])
+    }
+
+    if (type === 'end') {
+      setSliderValues([start, unixValue])
+    }
+  }
+
   return (
     <div
+      className='time-slider'
       style={{
         display: 'flex',
         justifyContent: 'center',
@@ -46,8 +116,56 @@ const TwoThumbsDraggableTrack = (props) => {
         width: '300px',
       }}
     >
+      <div
+        style={{
+          display: 'flex',
+          width: '100%',
+          justifyContent: 'space-between',
+          marginBottom: '10px',
+        }}
+      >
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            marginBottom: '10px',
+          }}
+        >
+          <span>Start: </span>
+
+          <input
+            // value={originalTime(sliderValues[0])}
+            // defaultValue={updatedTime.start}
+            type='text'
+            onKeyDown={(e) => onKeyDown(e, 'start')}
+            value={updatedTime.start}
+            onChange={(e) => onTimeChange(e, 'start')}
+            className='input-start'
+          />
+        </div>
+
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            marginBottom: '10px',
+          }}
+        >
+          <span>End: </span>
+
+          <input
+            // value={originalTime(sliderValues[0])}
+            // defaultValue={updatedTime.start}
+            type='text'
+            onKeyDown={(e) => onKeyDown(e, 'end')}
+            value={updatedTime.end}
+            onChange={(e) => onTimeChange(e, 'end')}
+            className='input-end'
+          />
+        </div>
+      </div>
       <Range
-        draggableTrack
+        // draggableTrack
         // values={[1617328800, 1617328810]}
         // values={values}
         values={sliderValues}
@@ -122,6 +240,7 @@ const TwoThumbsDraggableTrack = (props) => {
           </div>
         )}
       />
+
       <output style={{ marginTop: '30px' }} id='output'>
         {originalTime(sliderValues[0])} - {originalTime(sliderValues[1])}
       </output>
