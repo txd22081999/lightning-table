@@ -2,8 +2,8 @@ import { all, call, delay, put, takeEvery } from 'redux-saga/effects'
 import { lightningTableTypes as types } from '../types'
 import { getReplayerData } from '../api'
 
-function* getData() {
-  const response = yield call(getReplayerData)
+function* getData({ payload }) {
+  const response = yield call(getReplayerData, payload)
   const { status, data = {} } = response
   if (status !== 200) {
     console.error('Fetch data failed')

@@ -61,7 +61,9 @@ const BuySellLineChart = (props) => {
   const xScaleProvider = discontinuousTimeScaleProviderBuilder().inputDateAccessor(
     (d) => d.date
   )
-  const { data, xScale, xAccessor, displayXAccessor } = xScaleProvider([])
+  const { data, xScale, xAccessor, displayXAccessor } = xScaleProvider(
+    chartData
+  )
 
   const max = xAccessor(data[0])
   const min = xAccessor(data[data.length - 1])
@@ -93,7 +95,7 @@ const BuySellLineChart = (props) => {
           return response.text()
         })
         .then((data) => {
-          console.log(data)
+          // console.log(data)
           return tsvParse(data, parseData())
         })
         .then((data) => {
@@ -106,7 +108,7 @@ const BuySellLineChart = (props) => {
         })
     }
     updateData()
-    // interval = setInterval(updateData, 300)
+    // interval = setInterval(updateData, 500)
 
     return () => {
       clearInterval(interval)

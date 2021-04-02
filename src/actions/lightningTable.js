@@ -1,8 +1,9 @@
 // import types from './types';
 import { lightningTableTypes } from '../types'
 
-export const getData = () => ({
+export const getData = (payload) => ({
   type: lightningTableTypes.GET_DATA,
+  payload,
 })
 
 export const getDataSuccess = (payload) => ({

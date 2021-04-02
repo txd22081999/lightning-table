@@ -18,6 +18,8 @@ import {
   lastVisibleItemBasedZoomAnchor,
   ema,
   elderRay,
+  withDeviceRatio,
+  withSize,
 } from 'react-financial-charts'
 
 import { timeFormat } from 'd3-time-format'
@@ -54,6 +56,8 @@ const parseData = () => {
     return d
   }
 }
+
+let interval = undefined
 
 const PSChart = (props) => {
   const {
@@ -146,7 +150,7 @@ const PSChart = (props) => {
         })
         .then((data) => {
           setChartData(data)
-          console.log(data)
+          // console.log(data)
         })
         .catch(() => {
           console.log('Fail to fetch PS Chart data')
@@ -156,11 +160,13 @@ const PSChart = (props) => {
 
     updateData()
     // interval = setInterval(updateData, 500)
-    return () => {}
+    return () => {
+      clearInterval(interval)
+    }
   }, [])
 
   return (
-    <div className="ps-chart">
+    <div className='ps-chart'>
       <ChartCanvas
         height={height - 8}
         width={width}
@@ -173,7 +179,7 @@ const PSChart = (props) => {
         xAccessor={xAccessor}
         xExtents={xExtents}
         zoomAnchor={lastVisibleItemBasedZoomAnchor}
-        className="ps-canvas"
+        className='ps-canvas'
       >
         <Chart
           id={2}
@@ -262,4 +268,6 @@ const PSChart = (props) => {
   )
 }
 
-export default PSChart
+const containerStyle = { minHeight: '300px' }
+// export default PSChart
+export default withSize({ style: containerStyle })(withDeviceRatio()(PSChart))

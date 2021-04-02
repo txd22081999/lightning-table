@@ -1,9 +1,11 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react'
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import * as momentjs from 'moment'
+import lodash from 'lodash'
 
 import Player from '../Player'
 import Table from '../common/Table'
+import ReactSlider from '../Slider'
 // import Input from "../common/Input"
 
 import { Input, Slider, Button } from 'antd'
@@ -23,6 +25,7 @@ import {
   colorMapping,
 } from '../../utils'
 
+import 'boxicons' // Icons
 import './LightningTable.scss'
 
 const formatRow = (rows, columns) => {
@@ -51,7 +54,7 @@ const MIN_INDEX = 0 // index in table data returned
 const MAX_INDEX = 99 // index in table data returned
 
 const tableStyle = {
-  maxWidth: '80%',
+  maxWidth: '90%',
   overflowX: 'scroll',
   boxShadow: '0px 0px 4px rgba(0,0,0,0.4)',
   margin: '0 auto',
@@ -76,6 +79,7 @@ const LightningTable = (props) => {
     start: unixTime('09:00:00'),
     end: unixTime('14:45:00'),
   })
+  // const [exactTime, setExactTime] = useState({ start: '', end: '' })
   const [timeRange, setTimeRange] = useState({ start: '', end: '' })
   const [sliderVal, setSliderVal] = useState([25, 30])
   // const [timeRangeUnix, setTimeRangeUnix] = useState({ start: '', end: '' })
@@ -118,6 +122,12 @@ const LightningTable = (props) => {
     }
     // fetchData()
 
+    dispatch(
+      getDataAction({
+        rangeTime: ['10:00:00', '10:02:00'],
+      })
+    )
+
     return () => {
       clearUpdateInterval()
     }
@@ -126,7 +136,7 @@ const LightningTable = (props) => {
   const SpeedSlider = () => (
     <div
       style={{
-        width: '250px',
+        maxWidth: '250px',
         margin: '1em auto',
         display: 'flex',
         justifyContent: 'space-between',
@@ -147,15 +157,34 @@ const LightningTable = (props) => {
     </div>
   )
 
-  const onTimeChange = (value) => {
-    const [start, end] = value
-    console.log('VALUE', value)
+  const a = lodash.defaults({ a: 1 }, { a: 3, b: 2 })
+  console.log('HERERERE', a)
+  const onTimeChange = (values) => {
+    console.log(values)
+    const [start, end] = values
+    // console.log('VALUE', value)
     setTimeRange({
       start: start,
       end: end,
     })
-    console.log(start, end)
-    console.log('UNIX', originalTime(start), originalTime(end))
+    const DEBOUNCE_TIME = 500
+    console.log('HERE')
+    console.log(lodash.debounce)
+
+    // Fetch data in specific time range
+    const fetchDataByRange = lodash.debounce(() => {
+      console.log('DONE')
+      console.log(values)
+      dispatch(
+        getDataAction({
+          rangeTime: [originalTime(start), originalTime(end)],
+        })
+      )
+    }, DEBOUNCE_TIME)
+
+    fetchDataByRange()
+    // console.log(start, end)
+    // console.log('UNIX', originalTime(start), originalTime(end))
   }
 
   // const onAfterChange = (value) => {
@@ -167,7 +196,11 @@ const LightningTable = (props) => {
   //   })
   // }
 
-  const TimeSlider = () => {
+  const onTimeFinish = (value) => {
+    console.log('FNISH', value)
+  }
+
+  const TimeSlider = useCallback(() => {
     if (timeRange.start === undefined) return null
     const { start, end } = exactTime
     const min = parseInt(start),
@@ -182,7 +215,7 @@ const LightningTable = (props) => {
     console.log(timeSliderValue)
 
     return (
-      <>
+      <p>
         <div
           style={{
             width: '180px',
@@ -204,41 +237,60 @@ const LightningTable = (props) => {
         </div>
         <div
           style={{
-            width: '650px',
+            maxWidth: '650px',
             margin: '0.5em auto',
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
+            padding: '0 10px',
           }}
         >
-          <span>Time</span>
-          <span>{originalTime(exactTime.start)}</span>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <span>{originalTime(exactTime.start)}</span>
+            {/* <box-icon type='solid' name='sun' class='time-icon day'></box-icon> */}
+          </div>
 
-          <Slider
+          {/* <Slider
             style={{ width: '100%', margin: '0 8px' }}
             range
             min={min}
             max={max}
             step={1}
-            // onAfterChange={onAfterChange}
+            onAfterChange={onTimeFinish}
             onChange={onTimeChange}
             value={[timeRange.start, timeRange.end]}
             tipFormatter={formatter}
+          /> */}
+
+          <ReactSlider
+            min={min}
+            max={max}
+            values={[timeRange.start, timeRange.end]}
+            // onChange={onTimeChange}
+            onSliderFinish={onTimeChange}
           />
 
-          <span>{originalTime(exactTime.end)}</span>
+          <div style={{ display: 'flex' }}>
+            {/* <box-icon
+              class='time-icon night'
+              name='moon'
+              type='solid'
+              styles={{ color: 'gray', fill: 'gray' }}
+            ></box-icon> */}
+            <span>{originalTime(exactTime.end)}</span>
+          </div>
 
-          <Button
+          {/* <Button
             style={{ marginLeft: '20px' }}
             type='primary'
             onClick={handleApply}
           >
             Apply
-          </Button>
+          </Button> */}
         </div>
-      </>
+      </p>
     )
-  }
+  }, [])
 
   useEffect(() => {
     console.log('RENDER BY TIME')
@@ -254,6 +306,7 @@ const LightningTable = (props) => {
       raw: data,
     })
     const { times } = data
+    console.log(times[0])
     setStartTime({
       ...startTime,
       time: times[0],
@@ -267,8 +320,9 @@ const LightningTable = (props) => {
     const start = unixTimes[0]
     const end = unixTimes[unixTimes.length - 1]
 
+    const offset = end - start
+    setTimeRange({ start: start + offset / 3, end: start + offset / 2 })
     // setExactTime({ start, end })
-    setTimeRange({ start, end })
     // setTimeRange({ start: 0, value: 100 })
   }, [tableStore])
 
@@ -435,17 +489,19 @@ const LightningTable = (props) => {
   }
 
   const handleApply = () => {
-    dispatch(getDataAction()) // Fetch table data
+    dispatch(
+      getDataAction({
+        rangeTime: ['10:00:00', '10:02:00'],
+      })
+    ) // Fetch table data
     console.log('APPLY', timeRange)
   }
 
   return (
     <div className='lightning-table'>
-      <h1>Home</h1>
+      <h4>Lightning Table</h4>
 
       {/* <MemoizedTable /> */}
-
-      <div style={{ marginTop: '2em' }} />
 
       <span
         style={{
@@ -499,8 +555,8 @@ const LightningTable = (props) => {
         />
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <span>Loading...</span>
           <LoadingOutlined />
+          <span>Loading...</span>
         </div>
       )}
     </div>
