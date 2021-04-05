@@ -7,6 +7,7 @@ import Slider from '../../components/Slider'
 
 import './Home.scss'
 import TimeSlider from '../../components/TimeSlider'
+import CanvasChart from '../../components/CanvasChart'
 
 const Home = () => {
   return (
@@ -18,7 +19,7 @@ const Home = () => {
 
       {/* <TimeSlider /> */}
 
-      <div className='charts-container'>
+      {/* <div className='charts-container'>
         <div className='chart-item ps-chart-container'>
           <BuySellLineChart />
         </div>
@@ -43,7 +44,9 @@ const Home = () => {
         <div className='chart-item ps-chart-container'>
           <PSChartContainer />
         </div>
-      </div>
+      </div> */}
+
+      <CanvasChart />
     </div>
   )
 }
