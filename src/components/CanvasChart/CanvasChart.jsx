@@ -1,3 +1,4 @@
+import axios from 'axios'
 import React, { useRef, useState, useEffect } from 'react'
 // import CanvasJSReact from '../../CanvasJS/CanvasJSChart/canvasjs.react'
 import CanvasJSReact from '../../CanvasJS/CanvasJSStock/canvasjs.stock.react'
@@ -10,49 +11,58 @@ const CanvasJSStockChart = CanvasJSReact.CanvasJSStockChart
 
 const CanvasChart = () => {
   let chartRef = useRef(null)
+  const [chartDataPoint, setChartDataPoints] = useState({
+    dataPoint1: [],
+    dataPoint2: [],
+  })
 
   const [chartData, setChartData] = useState({})
 
-  //   const options = {
-  //     title: {
-  //       text: 'Basic Column Chart in React',
-  //     },
-  //     data: [
-  //       {
-  //         type: 'column',
-  //         dataPoints: [
-  //           { label: 'Apple', y: 10 },
-  //           { label: 'Orange', y: 15 },
-  //           { label: 'Banana', y: 25 },
-  //           { label: 'Mango', y: 30 },
-  //           { label: 'Grape', y: 28 },
-  //         ],
-  //       },
-  //     ],
-  //   }
+  const initData = async () => {
+    const dps1 = []
+    const dps2 = []
 
-  const initData = () => {
-    const limit = 10000 //increase number of dataPoints by increasing this
-    let y = 1000
-    const data = []
-    const dataSeries = { type: 'spline' }
-    const dataPoints = []
-    for (let i = 0; i < limit; i += 1) {
-      y += Math.round(Math.random() * 10 - 5)
-      dataPoints.push({ x: i, y: y })
+    const response = await axios.get(
+      'https://canvasjs.com/data/docs/btcusd2018.json'
+    )
+    console.log(response)
+    const { data } = response
+    for (var i = 0; i < data.length; i++) {
+      dps1.push({
+        x: new Date(data[i].date),
+        y: [
+          Number(data[i].open),
+          Number(data[i].high),
+          Number(data[i].low),
+          Number(data[i].close),
+        ],
+      })
+      dps2.push({
+        x: new Date(data[i].date),
+        // y: Number(data[i].close),
+        // y: [Number(data[i].open), Number(data[i].close)],
+        // y: [
+        //   Number(data[i].open),
+        //   Number(data[i].high),
+        //   Number(data[i].low),
+        //   Number(data[i].close),
+        // ],
+      })
     }
-    dataSeries.dataPoints = dataPoints
-    data.push(dataSeries)
-    setChartData(data)
-    console.log(data)
+    return { dps1, dps2 }
   }
 
   const options = {
-    title: {
-      text: 'StockChart with Numeric Axis',
-    },
-    animationEnabled: true,
+    theme: 'light2',
     exportEnabled: true,
+    title: {
+      text: 'StockChart with Date-Time Axis',
+    },
+    subtitles: [
+      {
+        text: 'Bitcoin Price (in USD)',
+      },
+    ],
     charts: [
       {
         axisX: {
@@ -62,54 +72,49 @@ const CanvasChart = () => {
           },
         },
         axisY: {
-          crosshair: {
-            enabled: true,
-            //snapToDataPoint: true
-          },
+          prefix: '$',
         },
-        data: chartData,
+        data: [
+          {
+            type: 'candlestick',
+            yValueFormatString: '$#,###.##',
+            dataPoints: chartDataPoint.dataPoint1,
+          },
+        ],
       },
     ],
-    rangeSelector: {
-      inputFields: {
-        startValue: 4000,
-        endValue: 6000,
-        valueFormatString: '###0',
-      },
-
-      buttons: [
+    navigator: {
+      data: [
         {
-          label: '1000',
-          range: 1000,
-          rangeType: 'number',
-        },
-        {
-          label: '2000',
-          range: 2000,
-          rangeType: 'number',
-        },
-        {
-          label: '5000',
-          range: 5000,
-          rangeType: 'number',
-        },
-        {
-          label: 'All',
-          rangeType: 'all',
+          dataPoints: chartDataPoint.dataPoint2,
         },
       ],
+      slider: {
+        minimum: new Date(2018, 4, 1),
+        maximum: new Date(2018, 6, 1),
+      },
     },
   }
 
   useEffect(() => {
-    initData()
+    const prepareChart = async () => {
+      const result = await initData()
+      console.log(result)
+      const { dps1, dps2 } = result
+      setChartDataPoints({
+        dataPoint1: dps1,
+        dataPoint2: dps2,
+      })
+    }
+    prepareChart()
+    // initData()
     // console.log(chartRef)
-    console.log(chartData)
+    // console.log(chartData)
   }, [])
 
   return (
     <div>
-      {chartData && chartData.length > 0 && (
+      {chartDataPoint && chartDataPoint.dataPoint1.length > 0 && (
         <CanvasJSStockChart
           options={options}
           onRef={(ref) => (chartRef = ref)}
